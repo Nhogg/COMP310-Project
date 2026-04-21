@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "terminal.h"
+#include "ramfs.h"
 
 #define MULTIBOOT2_HEADER_MAGIC 0xe85250d6
 
@@ -17,6 +18,9 @@ void main(void)
 {
     puts("COMP 310 project booted successfully.\n");
     puts("Terminal output layer is working.\n");
+
+    ramfs_init();
+    puts("RAMFS initialized.\n");
 
     while (1)
     {

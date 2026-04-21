@@ -63,4 +63,7 @@ void vcs_init(void);
 /* Hash a string using FNV-1a. */
 unsigned int fnv1a_hash(const char *data);
 
+/* Create one blob from one RAMFS file. */
+int vcs_create_blob_from_file(const char *filename);
+
 #endif

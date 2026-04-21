@@ -46,16 +46,17 @@ void main(void)
     int second_result;
     int write_result;
     int delete_result;
+    int blob_index;
     const char *content;
     unsigned int hash1;
     unsigned int hash2;
     unsigned int hash3;
 
-    // Phase 0
+    /* Phase 0 */
     puts("COMP 310 project booted successfully.\n");
     puts("Terminal output layer is working.\n");
 
-    // Phase 1
+    /* Phase 1 */
     ramfs_init();
     puts("RAMFS initialized.\n");
 
@@ -128,7 +129,7 @@ void main(void)
         puts("Read after delete did not fail as expected.\n");
     }
 
-    // Phase 2
+    /* Phase 2 */
     vcs_init();
     puts("VCS initialized.\n");
 
@@ -164,6 +165,60 @@ void main(void)
     else
     {
         puts("Different content did not produce different hashes.\n");
+    }
+
+    /* Phase 2 Blob */
+    first_result = ramfs_create("story.txt");
+
+    if (first_result == 0)
+    {
+        puts("Blob test file create succeeded: story.txt\n");
+    }
+    else
+    {
+        puts("Blob test file create failed: story.txt\n");
+    }
+
+    write_result = ramfs_write("story.txt", "hello blob world");
+
+    if (write_result == 0)
+    {
+        puts("Blob test file write succeeded: story.txt\n");
+    }
+    else
+    {
+        puts("Blob test file write failed: story.txt\n");
+    }
+
+    blob_index = vcs_create_blob_from_file("story.txt");
+
+    if (blob_index >= 0)
+    {
+        puts("Blob creation from RAMFS succeeded.\n");
+
+        puts("Blob index: ");
+        print_uint((unsigned int)blob_index);
+        puts("\n");
+
+        puts("Blob filename: ");
+        puts(vcs.blobs[blob_index].filename);
+        puts("\n");
+
+        puts("Blob contents: ");
+        puts(vcs.blobs[blob_index].data);
+        puts("\n");
+
+        puts("Blob size: ");
+        print_uint((unsigned int)vcs.blobs[blob_index].size);
+        puts("\n");
+
+        puts("Blob hash: ");
+        print_uint(vcs.blobs[blob_index].hash);
+        puts("\n");
+    }
+    else
+    {
+        puts("Blob creation from RAMFS failed.\n");
     }
 
     while (1)

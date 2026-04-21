@@ -41,7 +41,8 @@ SDIR = src
 OBJS = \
 	kernel_main.o \
 	terminal.o \
-	ramfs.o
+	ramfs.o \
+	vcs.o
 
 OBJ = $(patsubst %,$(ODIR)/%,$(OBJS))
 

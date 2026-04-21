@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "terminal.h"
 #include "ramfs.h"
+#include "vcs.h"
 
 #define MULTIBOOT2_HEADER_MAGIC 0xe85250d6
 
@@ -22,9 +23,11 @@ void main(void)
     int delete_result;
     const char *content;
 
+    //Phase 0
     puts("COMP 310 project booted successfully.\n");
     puts("Terminal output layer is working.\n");
 
+    //Phase 1
     ramfs_init();
     puts("RAMFS initialized.\n");
 
@@ -96,6 +99,13 @@ void main(void)
     {
         puts("Read after delete did not fail as expected.\n");
     }
+
+
+
+    //Phase 2
+    vcs_init();
+    puts("\nVCS initialized.\n");
+
 
     while (1)
     {

@@ -1,4 +1,5 @@
 #include "vcs.h"
+#include "terminal.h"
 
 vcs_t vcs;
 
@@ -101,6 +102,32 @@ static void vcs_build_commit_hash_input(char *buffer, const char *message, int t
     }
 
     buffer[i] = '\0';
+}
+
+/* Print an unsigned int in decimal form. */
+static void vcs_print_uint(unsigned int value)
+{
+    char buffer[16];
+    int i = 0;
+
+    if (value == 0)
+    {
+        putc('0');
+        return;
+    }
+
+    while (value > 0)
+    {
+        buffer[i] = (char)('0' + (value % 10));
+        value = value / 10;
+        i = i + 1;
+    }
+
+    while (i > 0)
+    {
+        i = i - 1;
+        putc(buffer[i]);
+    }
 }
 
 /* Initialize all VCS structures as empty. */
@@ -325,4 +352,39 @@ int vcs_create_commit(int tree_index, const char *message)
     vcs.head = &vcs.commits[free_index];
 
     return free_index;
+}
+
+/* Print commit history from head backward. */
+void vcs_print_log(void)
+{
+    vcs_commit_t *current;
+
+    current = vcs.head;
+
+    if (current == 0)
+    {
+        puts("VCS log is empty.\n");
+        return;
+    }
+
+    puts("VCS commit log:\n");
+
+    while (current != 0)
+    {
+        puts("Commit message: ");
+        puts(current->message);
+        puts("\n");
+
+        puts("Commit tree index: ");
+        vcs_print_uint((unsigned int)current->tree_index);
+        puts("\n");
+
+        puts("Commit hash: ");
+        vcs_print_uint(current->hash);
+        puts("\n");
+
+        puts("---\n");
+
+        current = current->parent;
+    }
 }

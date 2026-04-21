@@ -450,6 +450,9 @@ void main(void)
         puts("Second commit creation failed.\n");
     }
 
+    /* Phase 2 Log */
+    vcs_print_log();
+
     while (1)
     {
     }

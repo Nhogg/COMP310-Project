@@ -43,6 +43,66 @@ static int vcs_string_length(const char *str)
     return len;
 }
 
+/* Convert one non-negative int into a string. */
+static void vcs_uint_to_string(unsigned int value, char *buffer)
+{
+    char temp[16];
+    int i = 0;
+    int j;
+
+    if (value == 0)
+    {
+        buffer[0] = '0';
+        buffer[1] = '\0';
+        return;
+    }
+
+    while (value > 0)
+    {
+        temp[i] = (char)('0' + (value % 10));
+        value = value / 10;
+        i = i + 1;
+    }
+
+    for (j = 0; j < i; j = j + 1)
+    {
+        buffer[j] = temp[i - 1 - j];
+    }
+
+    buffer[i] = '\0';
+}
+
+/* Build a commit hash input string from message and tree index. */
+static void vcs_build_commit_hash_input(char *buffer, const char *message, int tree_index)
+{
+    int i = 0;
+    int j = 0;
+    char number_buffer[16];
+
+    while (message[i] != '\0' && i < VCS_MAX_COMMIT_MESSAGE - 2)
+    {
+        buffer[i] = message[i];
+        i = i + 1;
+    }
+
+    if (i < VCS_MAX_COMMIT_MESSAGE - 1)
+    {
+        buffer[i] = ':';
+        i = i + 1;
+    }
+
+    vcs_uint_to_string((unsigned int)tree_index, number_buffer);
+
+    while (number_buffer[j] != '\0' && i < VCS_MAX_COMMIT_MESSAGE - 1)
+    {
+        buffer[i] = number_buffer[j];
+        i = i + 1;
+        j = j + 1;
+    }
+
+    buffer[i] = '\0';
+}
+
 /* Initialize all VCS structures as empty. */
 void vcs_init(void)
 {
@@ -219,4 +279,50 @@ int vcs_tree_add_blob(int tree_index, int blob_index)
     vcs.trees[tree_index].entry_count = vcs.trees[tree_index].entry_count + 1;
 
     return 0;
+}
+
+/* Create one commit from one tree and link it to the current head. */
+int vcs_create_commit(int tree_index, const char *message)
+{
+    int i;
+    int free_index;
+    char hash_input[VCS_MAX_COMMIT_MESSAGE];
+
+    if (tree_index < 0 || tree_index >= VCS_MAX_TREE_ENTRIES)
+    {
+        return -1;
+    }
+
+    if (vcs.trees[tree_index].used == 0)
+    {
+        return -1;
+    }
+
+    free_index = -1;
+
+    for (i = 0; i < VCS_MAX_COMMITS; i = i + 1)
+    {
+        if (vcs.commits[i].used == 0)
+        {
+            free_index = i;
+            i = VCS_MAX_COMMITS;
+        }
+    }
+
+    if (free_index == -1)
+    {
+        return -1;
+    }
+
+    vcs.commits[free_index].used = 1;
+    vcs.commits[free_index].tree_index = tree_index;
+    vcs_copy_string(vcs.commits[free_index].message, message, VCS_MAX_COMMIT_MESSAGE);
+    vcs.commits[free_index].parent = vcs.head;
+
+    vcs_build_commit_hash_input(hash_input, vcs.commits[free_index].message, tree_index);
+    vcs.commits[free_index].hash = fnv1a_hash(hash_input);
+
+    vcs.head = &vcs.commits[free_index];
+
+    return free_index;
 }

@@ -49,6 +49,7 @@ void main(void)
     int blob_index;
     int tree_index;
     int tree_add_result;
+    int commit_index;
     const char *content;
     unsigned int hash1;
     unsigned int hash2;
@@ -260,6 +261,52 @@ void main(void)
     else
     {
         puts("Blob add to tree failed.\n");
+    }
+
+    /* Phase 2 Commit */
+    commit_index = vcs_create_commit(tree_index, "first commit");
+
+    if (commit_index >= 0)
+    {
+        puts("Commit creation succeeded.\n");
+
+        puts("Commit index: ");
+        print_uint((unsigned int)commit_index);
+        puts("\n");
+
+        puts("Commit message: ");
+        puts(vcs.commits[commit_index].message);
+        puts("\n");
+
+        puts("Commit tree index: ");
+        print_uint((unsigned int)vcs.commits[commit_index].tree_index);
+        puts("\n");
+
+        puts("Commit hash: ");
+        print_uint(vcs.commits[commit_index].hash);
+        puts("\n");
+
+        if (vcs.commits[commit_index].parent == 0)
+        {
+            puts("Commit parent is null as expected for first commit.\n");
+        }
+        else
+        {
+            puts("Commit parent was not null.\n");
+        }
+
+        if (vcs.head == &vcs.commits[commit_index])
+        {
+            puts("VCS head updated to the new commit.\n");
+        }
+        else
+        {
+            puts("VCS head did not update correctly.\n");
+        }
+    }
+    else
+    {
+        puts("Commit creation failed.\n");
     }
 
     while (1)

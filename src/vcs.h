@@ -72,4 +72,7 @@ int vcs_create_tree(void);
 /* Add one blob into one tree. */
 int vcs_tree_add_blob(int tree_index, int blob_index);
 
+/* Create one commit from one tree. */
+int vcs_create_commit(int tree_index, const char *message);
+
 #endif

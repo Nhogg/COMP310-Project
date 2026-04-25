@@ -2,6 +2,7 @@
 #include "terminal.h"
 #include "ramfs.h"
 #include "vcs.h"
+#include "shell.h"
 
 #define MULTIBOOT2_HEADER_MAGIC 0xe85250d6
 
@@ -452,6 +453,9 @@ void main(void)
 
     /* Phase 2 Log */
     vcs_print_log();
+
+    puts("\nStarting user shell demo...\n");
+    shell_start();
 
     while (1)
     {

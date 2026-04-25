@@ -20,8 +20,8 @@ ifndef PREFIX
 $(error No i386 cross-compiler found on aarch64. Install one or run: make PREFIX=<triplet->)
 endif
 
-BOOTIMG := /usr/local/grub/lib/grub/i386-pc/boot.img
-GRUBLOC := /usr/local/grub/bin/
+BOOTIMG := /usr/local/grub-i386/lib/grub/i386-pc/boot.img
+GRUBLOC := /usr/local/grub-i386/bin/
 
 else
 PREFIX ?=
@@ -42,7 +42,9 @@ OBJS = \
 	kernel_main.o \
 	terminal.o \
 	ramfs.o \
-	vcs.o
+	vcs.o\
+        shell.o
+
 
 OBJ = $(patsubst %,$(ODIR)/%,$(OBJS))
 

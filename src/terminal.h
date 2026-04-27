@@ -7,4 +7,6 @@ void putc(char c);
 /* Print a string to serial output. */
 void puts(const char *str);
 
+char getc(void);
+
 #endif

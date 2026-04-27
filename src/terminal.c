@@ -77,3 +77,21 @@ void puts(const char *str)
         i = i + 1;
     }
 }
+
+/* Check if the serial port has data to read. */
+static int serial_has_data(void)
+{
+    return inb(COM1 + 5) & 0x01;
+}
+
+/* Read one character from serial input. */
+char getc(void)
+{
+    terminal_init();
+
+    while (serial_has_data() == 0)
+    {
+    }
+
+    return (char)inb(COM1);
+}

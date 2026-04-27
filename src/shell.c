@@ -95,6 +95,7 @@ static void shell_help(void)
     puts("  write <file> <text>\n");
     puts("  read <file>\n");
     puts("  delete <file>\n");
+    puts("  edit <file>\n");
     puts("  commit <file> <message>\n");
     puts("  log\n");
     puts("  help\n");
@@ -140,6 +141,84 @@ static void shell_read(const char *filename)
 static void shell_delete(const char *filename)
 {
     print_result(ramfs_delete(filename));
+}
+
+static void shell_edit(const char *filename)
+{
+    char buffer[RAMFS_MAX_FILESIZE];
+    char line[SHELL_INPUT_MAX];
+    const char *existing;
+    int buf_len;
+    int i;
+    int line_len;
+
+    existing = ramfs_read(filename);
+
+    if (existing == 0)
+    {
+        puts("ERROR: file not found\n");
+        return;
+    }
+
+    puts("Editing: ");
+    puts(filename);
+    puts("\n");
+    puts("Current contents:\n");
+    puts(existing);
+    puts("\n");
+    puts("Type new content line by line.\n");
+    puts("Type :save to save and exit.\n");
+    puts("Type :quit to exit without saving.\n");
+
+    buf_len = 0;
+    buffer[0] = '\0';
+
+    while (1)
+    {
+        puts("| ");
+        shell_read_line(line);
+
+        if (strings_equal(line, ":save"))
+        {
+            if (ramfs_write(filename, buffer) == 0)
+            {
+                puts("Saved.\n");
+            }
+            else
+            {
+                puts("ERROR: save failed\n");
+            }
+            return;
+        }
+
+        if (strings_equal(line, ":quit"))
+        {
+            puts("Exited without saving.\n");
+            return;
+        }
+
+        line_len = 0;
+        while (line[line_len] != '\0')
+        {
+            line_len = line_len + 1;
+        }
+
+        i = 0;
+        while (i < line_len && buf_len < RAMFS_MAX_FILESIZE - 2)
+        {
+            buffer[buf_len] = line[i];
+            buf_len = buf_len + 1;
+            i = i + 1;
+        }
+
+        if (buf_len < RAMFS_MAX_FILESIZE - 2)
+        {
+            buffer[buf_len] = '\n';
+            buf_len = buf_len + 1;
+        }
+
+        buffer[buf_len] = '\0';
+    }
 }
 
 static void shell_commit_file(const char *filename, const char *message)
@@ -213,6 +292,10 @@ static void shell_dispatch(const char *line)
     else if (strings_equal(cmd, "delete"))
     {
         shell_delete(arg1);
+    }
+    else if (strings_equal(cmd, "edit"))
+    {
+        shell_edit(arg1);
     }
     else if (strings_equal(cmd, "commit"))
     {
